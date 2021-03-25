@@ -17,10 +17,13 @@ dnf install -y ca-certificates curl yum-utils audit audit-libs parted unzip redh
 install_jq
 
 # disable firewalld
-systemctl disable firewalld && systemctl stop firewalld
+# systemctl disable firewalld
+# systemctl stop firewalld
+# systemctl mask firewalld
 
 # enable audit log
-systemctl enable auditd && systemctl start auditd
+systemctl enable auditd
+systemctl start auditd
 
 # enable the /etc/environment
 configure_http_proxy

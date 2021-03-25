@@ -48,7 +48,6 @@ echo "-w ${DOCKER_SOCKET_PATH} -k docker" >> /etc/audit/rules.d/docker.rules
 echo "2.1 - 2.17 - ensure the docker configuration is secure"
 cat > /etc/docker/daemon.json <<EOF
 {
-  "bridge": "none",
   "log-level": "info",
   "log-driver": "json-file",
   "log-opts": {
@@ -59,25 +58,27 @@ cat > /etc/docker/daemon.json <<EOF
   "iptables": true,
   "storage-driver": "overlay2",
   "default-ulimits": {
-    "nofile": {
-      "Name": "nofile",
-      "Hard": 200,
-      "Soft": 100
+    "nproc": {
+      "Name": "nproc",
+      "Hard": 65535,
+      "Soft": 65535
     },
     "nofile": {
-      "Name": "nproc",
-      "Hard": 2048,
-      "Soft": 1024
+      "Name": "nofile",
+      "Hard": 65535,
+      "Soft": 65535
     }
   },
   "live-restore": true,
   "userland-proxy": false,
   "max-concurrent-downloads": 10,
   "experimental": false,
-  "insecure-registries": [],
-  "no-new-privileges": true
+  "insecure-registries": []
 }
 EOF
+
+# Needed for rke / rancher
+# "no-new-privileges": true
 
 echo "2 - restart the docker daemon"
 systemctl daemon-reload && systemctl restart docker

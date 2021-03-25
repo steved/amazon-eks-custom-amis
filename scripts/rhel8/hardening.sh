@@ -8,9 +8,10 @@ source /etc/packer/files/functions.sh
 
 case $HARDENING_FLAG in
   cis)
+    enable_fips
     oscap_generate_fix "/usr/share/xml/scap/ssg/content/ssg-rhel8-ds.xml" "xccdf_org.ssgproject.content_profile_cis"
     ;;
-  
+
   cui)
     enable_fips
     oscap_generate_fix "/usr/share/xml/scap/ssg/content/ssg-rhel8-ds.xml" "xccdf_org.ssgproject.content_profile_cui"
@@ -36,7 +37,7 @@ case $HARDENING_FLAG in
     enable_fips
     oscap_generate_fix "/usr/share/xml/scap/ssg/content/ssg-rhel8-ds.xml" "xccdf_org.ssgproject.content_profile_stig" "/etc/packer/files/ssg-rhel8-stig-tailoring.xml"
     ;;
-  
+
   *)
     echo "unsupported hardening profile"
 esac
@@ -45,3 +46,8 @@ if [ -f /etc/packer/hardening.sh ]; then
   bash /etc/packer/hardening.sh
 fi
 
+sed -i'' -e 's/AllowTcpForwarding no/AllowTcpForwarding yes/' /etc/ssh/sshd_config
+
+systemctl disable firewalld
+systemctl stop firewalld
+systemctl mask firewalld

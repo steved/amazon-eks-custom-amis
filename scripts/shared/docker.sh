@@ -76,7 +76,6 @@ fi
 
 cat > /etc/docker/daemon.json <<EOF
 {
-  "bridge": "none",
   "log-driver": "json-file",
   "log-opts": {
     "max-size": "10m",
@@ -86,15 +85,15 @@ cat > /etc/docker/daemon.json <<EOF
   "iptables": true,
   "storage-driver": "overlay2",
   "default-ulimits": {
-    "nofile": {
-      "Name": "nofile",
-      "Hard": 200,
-      "Soft": 100
+    "nproc": {
+      "Name": "nproc",
+      "Hard": 65535,
+      "Soft": 65535
     },
     "nofile": {
-      "Name": "nproc",
-      "Hard": 2048,
-      "Soft": 1024
+      "Name": "nofile",
+      "Hard": 65535,
+      "Soft": 65535
     }
   },
   "live-restore": true,
@@ -106,10 +105,11 @@ cat > /etc/docker/daemon.json <<EOF
 }
 EOF
 
+for mod in ip_tables ip_vs_sh ip_vs ip_vs_rr ip_vs_wrr; do echo $mod >> /etc/modules-load.d/iptables.conf; done
+
 chown root:root /etc/docker/daemon.json
 
 configure_docker_environment
 
 systemctl daemon-reload
 systemctl enable docker && systemctl start docker
-
